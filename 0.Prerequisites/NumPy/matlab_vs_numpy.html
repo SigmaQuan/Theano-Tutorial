@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <div class="section" id="table-of-rough-matlab-numpy-equivalents">
+        <h2>Table of Rough MATLAB-NumPy Equivalents<a class="headerlink" href="#table-of-rough-matlab-numpy-equivalents"
+                                                      title="Permalink to this headline">¶</a></h2>
+        <p>The table below gives rough equivalents for some common MATLAB®
+            expressions. <strong>These are not exact equivalents</strong>, but rather should be
+            taken as hints to get you going in the right direction. For more detail
+            read the built-in documentation on the NumPy functions.</p>
+        <p>Some care is necessary when writing functions that take arrays or
+            matrices as arguments &#8212; if you are expecting an <tt class="docutils literal"><span
+                    class="pre">array</span></tt> and are
+            given a <tt class="docutils literal"><span class="pre">matrix</span></tt>, or vice versa, then &#8216;*&#8217;
+            (multiplication) will give
+            you unexpected results. You can convert back and forth between arrays
+            and matrices using</p>
+        <ul class="simple">
+            <li><tt class="docutils literal"><span class="pre">asarray</span></tt>: always returns an object of type <tt
+                    class="docutils literal"><span class="pre">array</span></tt></li>
+            <li><tt class="docutils literal"><span class="pre">asmatrix</span></tt> or <tt
+                    class="docutils literal"><span class="pre">mat</span></tt>: always return an object of type
+                <tt class="docutils literal"><span class="pre">matrix</span></tt></li>
+            <li><tt class="docutils literal"><span class="pre">asanyarray</span></tt>: always returns an <tt
+                    class="docutils literal"><span class="pre">array</span></tt> object or a subclass
+                derived from it, depending on the input. For instance if you pass in
+                a <tt class="docutils literal"><span class="pre">matrix</span></tt> it returns a <tt
+                        class="docutils literal"><span class="pre">matrix</span></tt>.
+            </li>
+        </ul>
+        <p>These functions all accept both arrays and matrices (among other things
+            like Python lists), and thus are useful when writing functions that
+            should accept any array-like object.</p>
+        <p>In the table below, it is assumed that you have executed the following
+            commands in Python:</p>
+        <div class="highlight-python">
+            <div class="highlight"><pre><span class="kn">from</span> <span class="nn">numpy</span> <span class="kn">import</span> <span
+                    class="o">*</span>
+    <span class="kn">import</span> <span class="nn">scipy.linalg</span>
+    </pre>
+            </div>
+        </div>
+
+        <p>Also assume below that if the Notes talk about &#8220;matrix&#8221; that the
+            arguments are two-dimensional entities.</p>
+        <div class="section" id="general-purpose-equivalents">
+            <h3>General Purpose Equivalents<a class="headerlink" href="#general-purpose-equivalents"
+                                              title="Permalink to this headline">¶</a></h3>
+            <table border="1" class="docutils">
+                <colgroup>
+                    <col width="33%"/>
+                    <col width="33%"/>
+                    <col width="33%"/>
+                </colgroup>
+                <thead valign="bottom">
+                <tr class="row-odd">
+                    <th class="head"><strong>MATLAB</strong></th>
+                    <th class="head"><strong>numpy</strong></th>
+                    <th class="head"><strong>Notes</strong></th>
+                </tr>
+                </thead>
+                <tbody valign="top">
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">help</span> <span class="pre">func</span></tt>
+                    </td>
+                    <td><tt class="docutils literal"><span class="pre">info(func)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">help(func)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">func?</span></tt> (in Ipython)
+                    </td>
+                    <td>get help on the function <em>func</em></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">which</span> <span class="pre">func</span></tt>
+                    </td>
+                    <td><a class="reference external" href="numpy-for-matlab-users.notes">see note HELP</a></td>
+                    <td>find out where <em>func</em> is defined</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">type</span> <span class="pre">func</span></tt>
+                    </td>
+                    <td><tt class="docutils literal"><span class="pre">source(func)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">func??</span></tt> (in Ipython)
+                    </td>
+                    <td>print source for <em>func</em> (if not a native function)</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&amp;&amp;</span>
+                        <span class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">and</span> <span
+                            class="pre">b</span></tt></td>
+                    <td>short-circuiting logical AND operator (Python native operator);
+                        scalar arguments only
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">||</span> <span
+                            class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">or</span> <span
+                            class="pre">b</span></tt></td>
+                    <td>short-circuiting logical OR operator (Python native operator);
+                        scalar arguments only
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">1*i</span></tt>, <tt
+                            class="docutils literal"><span class="pre">1*j</span></tt>, <tt
+                            class="docutils literal"><span class="pre">1i</span></tt>, <tt
+                            class="docutils literal"><span class="pre">1j</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">1j</span></tt></td>
+                    <td>complex numbers</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">eps</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">np.spacing(1)</span></tt></td>
+                    <td>Distance between 1 and the nearest floating point number.</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">ode45</span></tt></td>
+                    <td><tt class="docutils literal"><span
+                            class="pre">scipy.integrate.ode(f).set_integrator('dopri5')</span></tt></td>
+                    <td>integrate an ODE with Runge-Kutta 4,5</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">ode15s</span></tt></td>
+                    <td><tt class="docutils literal"><span
+                            class="pre">scipy.integrate.ode(f).set_integrator('vode',</span> <span class="pre">method='bdf',</span>
+                        <span class="pre">order=5)</span></tt></td>
+                    <td>integrate an ODE with BDF method</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="section" id="linear-algebra-equivalents">
+            <h3>Linear Algebra Equivalents<a class="headerlink" href="#linear-algebra-equivalents"
+                                             title="Permalink to this headline">¶</a></h3>
+            <table border="1" class="docutils">
+                <colgroup>
+                    <col width="33%"/>
+                    <col width="33%"/>
+                    <col width="33%"/>
+                </colgroup>
+                <thead valign="bottom">
+                <tr class="row-odd">
+                    <th class="head">MATLAB</th>
+                    <th class="head">NumPy</th>
+                    <th class="head">Notes</th>
+                </tr>
+                </thead>
+                <tbody valign="top">
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">ndims(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">ndim(a)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.ndim</span></tt></td>
+                    <td>get the number of dimensions of an array</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">numel(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">size(a)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.size</span></tt></td>
+                    <td>get the number of elements of an array</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">size(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">shape(a)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.shape</span></tt></td>
+                    <td>get the &#8220;size&#8221; of the matrix</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">size(a,n)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.shape[n-1]</span></tt></td>
+                    <td>get the number of elements of the n-th dimension of array <tt class="docutils literal"><span
+                            class="pre">a</span></tt>. (Note
+                        that MATLAB® uses 1 based indexing while Python uses 0 based indexing,
+                        See note <a class="reference internal"
+                                    href="#numpy-for-matlab-users-notes"><em>INDEXING</em></a>)
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[</span> <span class="pre">1</span> <span
+                            class="pre">2</span> <span class="pre">3;</span> <span class="pre">4</span> <span
+                            class="pre">5</span> <span class="pre">6</span> <span class="pre">]</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">array([[1.,2.,3.],</span> <span class="pre">[4.,5.,6.]])</span></tt>
+                    </td>
+                    <td>2x3 matrix literal</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[</span> <span class="pre">a</span> <span
+                            class="pre">b;</span> <span class="pre">c</span> <span class="pre">d</span> <span
+                            class="pre">]</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">vstack([hstack([a,b]),</span> <span class="pre">hstack([c,d])])</span></tt>
+                        or
+                        <tt class="docutils literal"><span class="pre">bmat('a</span> <span class="pre">b;</span> <span
+                                class="pre">c</span> <span class="pre">d').A</span></tt></td>
+                    <td>construct a matrix from blocks <tt class="docutils literal"><span class="pre">a</span></tt>, <tt
+                            class="docutils literal"><span class="pre">b</span></tt>, <tt class="docutils literal"><span
+                            class="pre">c</span></tt>, and <tt class="docutils literal"><span class="pre">d</span></tt>
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a(end)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[-1]</span></tt></td>
+                    <td>access last element in the 1xn matrix <tt class="docutils literal"><span
+                            class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(2,5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[1,4]</span></tt></td>
+                    <td>access element in second row, fifth column</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a(2,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[1]</span></tt> or <tt class="docutils literal"><span
+                            class="pre">a[1,:]</span></tt></td>
+                    <td>entire second row of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(1:5,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[0:5]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a[:5]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a[0:5,:]</span></tt></td>
+                    <td>the first five rows of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a(end-4:end,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[-5:]</span></tt></td>
+                    <td>the last five rows of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(1:3,5:9)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[0:3][:,4:9]</span></tt></td>
+                    <td>rows one to three and columns five to nine of <tt class="docutils literal"><span
+                            class="pre">a</span></tt>. This gives
+                        read-only access.
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a([2,4,5],[1,3])</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[ix_([1,3,4],[0,2])]</span></tt></td>
+                    <td>rows 2,4 and 5 and columns 1 and 3. This allows the matrix to be
+                        modified, and doesn&#8217;t require a regular slice.
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(3:2:21,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[</span> <span class="pre">2:21:2,:]</span></tt>
+                    </td>
+                    <td>every other row of <tt class="docutils literal"><span class="pre">a</span></tt>, starting with
+                        the third and going to the
+                        twenty-first
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a(1:2:end,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[</span> <span class="pre">::2,:]</span></tt>
+                    </td>
+                    <td>every other row of <tt class="docutils literal"><span class="pre">a</span></tt>, starting with
+                        the first
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(end:-1:1,:)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">flipud(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[</span> <span class="pre">::-1,:]</span></tt>
+                    </td>
+                    <td><tt class="docutils literal"><span class="pre">a</span></tt> with rows in reverse order</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a([1:end</span> <span
+                            class="pre">1],:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[r_[:len(a),0]]</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span></tt> with copy of the first row appended
+                        to the end
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a.'</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.transpose()</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.T</span></tt></td>
+                    <td>transpose of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a'</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.conj().transpose()</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.conj().T</span></tt></td>
+                    <td>conjugate transpose of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">*</span> <span
+                            class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.dot(b)</span></tt></td>
+                    <td>matrix multiply</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">.*</span> <span
+                            class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">*</span> <span
+                            class="pre">b</span></tt></td>
+                    <td>element-wise multiply</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a./b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a/b</span></tt></td>
+                    <td>element-wise divide</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a.^3</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a**3</span></tt></td>
+                    <td>element-wise exponentiation</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">(a&gt;0.5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">(a&gt;0.5)</span></tt></td>
+                    <td>matrix whose i,jth element is (a_ij &gt; 0.5). The Matlab result is an
+                        array of 0s and 1s. The NumPy result is an array of the boolean
+                        values <tt class="docutils literal"><span class="pre">False</span></tt> and <tt
+                                class="docutils literal"><span class="pre">True</span></tt>.
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">find(a&gt;0.5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">nonzero(a&gt;0.5)</span></tt></td>
+                    <td>find the indices where (<tt class="docutils literal"><span class="pre">a</span></tt> &gt; 0.5)
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(:,find(v&gt;0.5))</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[:,nonzero(v&gt;0.5)[0]]</span></tt></td>
+                    <td>extract the columms of <tt class="docutils literal"><span class="pre">a</span></tt> where vector
+                        v &gt; 0.5
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a(:,find(v&gt;0.5))</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[:,v.T&gt;0.5]</span></tt></td>
+                    <td>extract the columms of <tt class="docutils literal"><span class="pre">a</span></tt> where column
+                        vector v &gt; 0.5
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(a&lt;0.5)=0</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[a&lt;0.5]=0</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span></tt> with elements less than 0.5 zeroed
+                        out
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">.*</span> <span
+                            class="pre">(a&gt;0.5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">*</span> <span
+                            class="pre">(a&gt;0.5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span></tt> with elements less than 0.5 zeroed
+                        out
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a(:)</span> <span class="pre">=</span> <span
+                            class="pre">3</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a[:]</span> <span class="pre">=</span> <span
+                            class="pre">3</span></tt></td>
+                    <td>set all values to the same scalar value</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">y=x</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">y</span> <span class="pre">=</span> <span
+                            class="pre">x.copy()</span></tt></td>
+                    <td>numpy assigns by reference</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">y=x(2,:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">y</span> <span class="pre">=</span> <span
+                            class="pre">x[1,:].copy()</span></tt></td>
+                    <td>numpy slices are by reference</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">y=x(:)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">y</span> <span class="pre">=</span> <span
+                            class="pre">x.flatten()</span></tt></td>
+                    <td>turn array into vector (note that this forces a copy)</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">1:10</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">arange(1.,11.)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">r_[1.:11.]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">r_[1:10:10j]</span></tt></td>
+                    <td>create an increasing vector (see note <a class="reference internal"
+                                                                 href="#numpy-for-matlab-users-notes"><em>RANGES</em></a>)
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">0:9</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">arange(10.)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">r_[:10.]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">r_[:9:10j]</span></tt></td>
+                    <td>create an increasing vector (see note <a class="reference internal"
+                                                                 href="#numpy-for-matlab-users-notes"><em>RANGES</em></a>)
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[1:10]'</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">arange(1.,11.)[:,</span> <span class="pre">newaxis]</span></tt>
+                    </td>
+                    <td>create a column vector</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">zeros(3,4)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">zeros((3,4))</span></tt></td>
+                    <td>3x4 two-dimensional array full of 64-bit floating point zeros</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">zeros(3,4,5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">zeros((3,4,5))</span></tt></td>
+                    <td>3x4x5 three-dimensional array full of 64-bit floating point zeros</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">ones(3,4)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">ones((3,4))</span></tt></td>
+                    <td>3x4 two-dimensional array full of 64-bit floating point ones</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">eye(3)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">eye(3)</span></tt></td>
+                    <td>3x3 identity matrix</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">diag(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">diag(a)</span></tt></td>
+                    <td>vector of diagonal elements of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">diag(a,0)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">diag(a,0)</span></tt></td>
+                    <td>square diagonal matrix whose nonzero values are the elements of
+                        <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">rand(3,4)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">random.rand(3,4)</span></tt></td>
+                    <td>random 3x4 matrix</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">linspace(1,3,4)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linspace(1,3,4)</span></tt></td>
+                    <td>4 equally spaced samples between 1 and 3, inclusive</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[x,y]=meshgrid(0:8,0:5)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">mgrid[0:9.,0:6.]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">meshgrid(r_[0:9.],r_[0:6.]</span></tt></td>
+                    <td>two 2D arrays: one of x values, the other of y values</td>
+                </tr>
+                <tr class="row-odd">
+                    <td>&nbsp;</td>
+                    <td><tt class="docutils literal"><span class="pre">ogrid[0:9.,0:6.]</span></tt> or <tt
+                            class="docutils literal"><span class="pre">ix_(r_[0:9.],r_[0:6.]</span></tt></td>
+                    <td>the best way to eval functions on a grid</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[x,y]=meshgrid([1,2,4],[2,4,5])</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">meshgrid([1,2,4],[2,4,5])</span></tt></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr class="row-odd">
+                    <td>&nbsp;</td>
+                    <td><tt class="docutils literal"><span class="pre">ix_([1,2,4],[2,4,5])</span></tt></td>
+                    <td>the best way to eval functions on a grid</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">repmat(a,</span> <span class="pre">m,</span>
+                        <span class="pre">n)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">tile(a,</span> <span class="pre">(m,</span> <span
+                            class="pre">n))</span></tt></td>
+                    <td>create m by n copies of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[a</span> <span class="pre">b]</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">concatenate((a,b),1)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">hstack((a,b))</span></tt> or
+                        <tt class="docutils literal"><span class="pre">column_stack((a,b))</span></tt> or <tt
+                                class="docutils literal"><span class="pre">c_[a,b]</span></tt></td>
+                    <td>concatenate columns of <tt class="docutils literal"><span class="pre">a</span></tt> and <tt
+                            class="docutils literal"><span class="pre">b</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[a;</span> <span class="pre">b]</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">concatenate((a,b))</span></tt> or <tt
+                            class="docutils literal"><span class="pre">vstack((a,b))</span></tt> or <tt
+                            class="docutils literal"><span class="pre">r_[a,b]</span></tt></td>
+                    <td>concatenate rows of <tt class="docutils literal"><span class="pre">a</span></tt> and <tt
+                            class="docutils literal"><span class="pre">b</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">max(max(a))</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.max()</span></tt></td>
+                    <td>maximum element of <tt class="docutils literal"><span class="pre">a</span></tt> (with ndims(a)&lt;=2
+                        for matlab)
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">max(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.max(0)</span></tt></td>
+                    <td>maximum element of each column of matrix <tt class="docutils literal"><span class="pre">a</span></tt>
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">max(a,[],2)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.max(1)</span></tt></td>
+                    <td>maximum element of each row of matrix <tt class="docutils literal"><span
+                            class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">max(a,b)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">maximum(a,</span> <span
+                            class="pre">b)</span></tt></td>
+                    <td>compares <tt class="docutils literal"><span class="pre">a</span></tt> and <tt
+                            class="docutils literal"><span class="pre">b</span></tt> element-wise, and returns the
+                        maximum value
+                        from each pair
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">norm(v)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">sqrt(dot(v,v))</span></tt> or <tt
+                            class="docutils literal"><span class="pre">np.linalg.norm(v)</span></tt></td>
+                    <td>L2 norm of vector <tt class="docutils literal"><span class="pre">v</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&amp;</span> <span
+                            class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">logical_and(a,b)</span></tt></td>
+                    <td>element-by-element AND operator (Numpy ufunc) <a class="reference internal"
+                                                                         href="#numpy-for-matlab-users-notes"><em>See
+                        note
+                        LOGICOPS</em></a></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">|</span> <span
+                            class="pre">b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">logical_or(a,b)</span></tt></td>
+                    <td>element-by-element OR operator (Numpy ufunc) <a class="reference internal"
+                                                                        href="#numpy-for-matlab-users-notes"><em>See
+                        note LOGICOPS</em></a></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">bitand(a,b)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">&amp;</span> <span
+                            class="pre">b</span></tt></td>
+                    <td>bitwise AND operator (Python native and Numpy ufunc)</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">bitor(a,b)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a</span> <span class="pre">|</span> <span
+                            class="pre">b</span></tt></td>
+                    <td>bitwise OR operator (Python native and Numpy ufunc)</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">inv(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.inv(a)</span></tt></td>
+                    <td>inverse of square matrix <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">pinv(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.pinv(a)</span></tt></td>
+                    <td>pseudo-inverse of matrix <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">rank(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.matrix_rank(a)</span></tt></td>
+                    <td>matrix rank of a 2D array / matrix <tt class="docutils literal"><span class="pre">a</span></tt>
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">a\b</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.solve(a,b)</span></tt> if <tt
+                            class="docutils literal"><span class="pre">a</span></tt> is square; <tt
+                            class="docutils literal"><span class="pre">linalg.lstsq(a,b)</span></tt>
+                        otherwise
+                    </td>
+                    <td>solution of a x = b for x</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">b/a</span></tt></td>
+                    <td>Solve a.T x.T = b.T instead</td>
+                    <td>solution of x a = b for x</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[U,S,V]=svd(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">U,</span> <span class="pre">S,</span> <span
+                            class="pre">Vh</span> <span class="pre">=</span> <span class="pre">linalg.svd(a),</span>
+                        <span class="pre">V</span> <span class="pre">=</span> <span class="pre">Vh.T</span></tt></td>
+                    <td>singular value decomposition of <tt class="docutils literal"><span class="pre">a</span></tt>
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">chol(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.cholesky(a).T</span></tt></td>
+                    <td>cholesky factorization of a matrix (<tt class="docutils literal"><span
+                            class="pre">chol(a)</span></tt> in matlab returns an
+                        upper triangular matrix, but <tt class="docutils literal"><span
+                                class="pre">linalg.cholesky(a)</span></tt> returns a lower
+                        triangular matrix)
+                    </td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[V,D]=eig(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">D,V</span> <span class="pre">=</span> <span
+                            class="pre">linalg.eig(a)</span></tt></td>
+                    <td>eigenvalues and eigenvectors of <tt class="docutils literal"><span class="pre">a</span></tt>
+                    </td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[V,D]=eig(a,b)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">V,D</span> <span class="pre">=</span> <span
+                            class="pre">np.linalg.eig(a,b)</span></tt></td>
+                    <td>eigenvalues and eigenvectors of <tt class="docutils literal"><span class="pre">a</span></tt>,
+                        <tt class="docutils literal"><span class="pre">b</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[V,D]=eigs(a,k)</span></tt></td>
+                    <td>&nbsp;</td>
+                    <td>find the <tt class="docutils literal"><span class="pre">k</span></tt> largest eigenvalues and
+                        eigenvectors of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[Q,R,P]=qr(a,0)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">Q,R</span> <span class="pre">=</span> <span
+                            class="pre">scipy.linalg.qr(a)</span></tt></td>
+                    <td>QR decomposition</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">[L,U,P]=lu(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">L,U</span> <span class="pre">=</span> <span
+                            class="pre">scipy.linalg.lu(a)</span></tt> or <tt class="docutils literal"><span
+                            class="pre">LU,P=scipy.linalg.lu_factor(a)</span></tt></td>
+                    <td>LU decomposition (note: P(Matlab) == transpose(P(numpy)) )</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">conjgrad</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">scipy.sparse.linalg.cg</span></tt></td>
+                    <td>Conjugate gradients solver</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">fft(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">fft(a)</span></tt></td>
+                    <td>Fourier transform of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">ifft(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">ifft(a)</span></tt></td>
+                    <td>inverse Fourier transform of <tt class="docutils literal"><span class="pre">a</span></tt></td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">sort(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">sort(a)</span></tt> or <tt
+                            class="docutils literal"><span class="pre">a.sort()</span></tt></td>
+                    <td>sort the matrix</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">[b,I]</span> <span class="pre">=</span> <span
+                            class="pre">sortrows(a,i)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">I</span> <span class="pre">=</span> <span
+                            class="pre">argsort(a[:,i]),</span> <span class="pre">b=a[I,:]</span></tt></td>
+                    <td>sort the rows of the matrix</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">regress(y,X)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">linalg.lstsq(X,y)</span></tt></td>
+                    <td>multilinear regression</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">decimate(x,</span> <span
+                            class="pre">q)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">scipy.signal.resample(x,</span> <span
+                            class="pre">len(x)/q)</span></tt></td>
+                    <td>downsample with low-pass filtering</td>
+                </tr>
+                <tr class="row-odd">
+                    <td><tt class="docutils literal"><span class="pre">unique(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">unique(a)</span></tt></td>
+                    <td>&nbsp;</td>
+                </tr>
+                <tr class="row-even">
+                    <td><tt class="docutils literal"><span class="pre">squeeze(a)</span></tt></td>
+                    <td><tt class="docutils literal"><span class="pre">a.squeeze()</span></tt></td>
+                    <td>&nbsp;</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</head>
+<body>
+
+</body>
+</html>
