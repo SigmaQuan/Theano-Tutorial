@@ -745,25 +745,85 @@ print z
 
 # 61. How to negate a boolean, or to change the sign of a float inplace? (***)
 # ??? (not understanding)
-z = np.random.randint(0, 2, 100)
+z = np.random.randint(0, 2, 10)
 print z
 np.logical_not(z, out=z)
 print z
 
-z = np.random.uniform(-1.0, 1.0, 100)
+z = np.random.uniform(-1.0, 1.0, 10)
 print z
 np.negative(z, out=z)
 print z
 
-# 62.
+# 62. Consider 2 sets of points P0, P1 describing lines (2d) and a
+# point p, how to compute distance from p to each
+# line i (P0[i], P1[i])? (***) (not fully understanding)
+def distance(P0, P1, p):
+    T = P1 - P0
+    L = (T**2).sum(axis=1)
+    U = -((P0[:, 0] - p[..., 0])*T[:, 0] + (P0[:, 1] - p[..., 1])*T[:, 1]) / L
+    U = U.reshape(len(U), 1)
+    D = P0 + U*T - p
+    return np.sqrt((D**2).sum(axis=1))
+P0 = np.random.uniform(-10, 10, (10, 2))
+P1 = np.random.uniform(-10, 10, (10, 2))
+p = np.random.uniform(-10, 10, (1, 2))
+print P0
+print P1
+print p
+print distance(P0, P1, p)
 
-# 63.
+# 63. Consider 2 sets of points P0, P1 describing lines (2d) and a set
+# of points p, how to compute distance from each point j (p[j]) to each
+# line i (P0[i], P1[i])? (***)
+P0 = np.random.uniform(-10, 10, (10, 2))
+P1 = np.random.uniform(-10, 10, (10, 2))
+p = np.random.uniform(-10, 10, (10, 2))
+print np.array([distance(P0, P1, p_i) for p_i in p])
+#
+# # 64. Consider an arbitrary array, write a function that extract a
+# # subpart with a fixed shape and centered on a given element (pad
+# # with a fill value when necessary) (***) ??? (not understanding)
+# Z = np.random.randint(0, 10, (10, 10))
+# shape = (5, 5)
+# fill = 0
+# position = (1, 1)
+#
+# R = np.ones(shape, dtype=Z.dtype)*fill
+# P = np.array(list(position)).astype(int)
+# Rs = np.array(list(R.shape)).astype(int)
+# Zs = np.array(list(Z.shape)).astype(int)
+#
+# R_start = np.zeros((len(shape), )).astype(int)
+# R_stop = np.array(list(shape)).astype(int)
+# Z_start = (P - Rs // 2)
+# Z_stop = (P + Rs // 2) + Rs % 2
+#
+# R_start = (R_start - np.minimum(Z_start, 0)).tolist()
+# Z_start = (np.maximum(Z_start, 0)).tolist()
+# R_stop = np.maximum(R_start, (R_stop - np.maximum(Z_stop - Zs))).tolist()  # ValueError: invalid number of arguments
+# Z_stop = (np.maximum(Z_stop, Zs)).tolist()
+#
+# r = [slice(start, stop) for start, stop in zip(R_start, R_stop)]
+# z = [slice(start, stop) for start, stop in zip(Z_start, Z_stop)]
+# R[r] = Z[z]
+# print Z
+# print R
 
-# 64.
+# 65. Consider an array
+# Z = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14],
+# how to generate an array
+# R = [[1, 2, 3, 4], [2, 3, 4, 5], ..., [11, 12, 13, 14]]
+# (***)
+z = np.arange(1, 15, dtype=np.uint32)
+r = stride_tricks.as_strided(z, (11, 4), (4, 4))
+print r
 
-# 65.
-
-# 66.
+# 66. Compute a matrix rank (***)
+z = np.random.uniform(0, 1, (10, 10))
+U, S, V = np.linalg.svd(z)
+rank = np.sum(S > 1e-10)
+print rank
 
 # 67.
 
