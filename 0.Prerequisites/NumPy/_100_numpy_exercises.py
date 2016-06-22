@@ -825,8 +825,213 @@ U, S, V = np.linalg.svd(z)
 rank = np.sum(S > 1e-10)
 print rank
 
-# 67.
+# 67. How to find the most frequent value in an array?
+z = np.random.randint(0, 10, 50)
+print np.bincount(z).argmax()
 
-# 68.
+# 68. Extract all the contiguous 3x3 blocks from a
+# random 10x10 matrix (***) (not understanding)
+z = np.random.randint(0, 5, (10, 10))
+n = 3
+i = 1 + (z.shape[0] - 3)
+j = 1 + (z.shape[1] - 3)
+c = stride_tricks.as_strided(z, shape=(i, j, n, n),
+                             strides=z.strides + z.strides)
+print z
+print c
 
-# 69.
+# 69. Create a 2D array subclass such that z[i,j] = z[j,i] (***)
+class Symetric(np.ndarray):
+    def __setitem__(self, (i, j), value):
+        super(Symetric, self).__setitem__((i, j), value)
+        super(Symetric, self).__setitem__((j, i), value)
+
+def symetric(z):
+    return np.asarray(z + z.T - np.diag(z.diagonal())).view(Symetric)
+
+s = symetric(np.random.randint(0, 10, (5, 5)))
+print s
+s[2, 3] = 42
+print s
+
+# 70. Consider a set of p matrices which shape (n, n) and a set
+# of p vectors with shape (n, 1). How to compute the sum of the
+# p matrix products at once? (result has shape (n, 1)) (***)
+# p, n = 10, 20
+p, n = 3, 5
+m = np.ones((p, n, n))
+v = np.ones((p, n, 1))
+s = np.tensordot(m, v, axes=[[0, 2], [0, 1]])
+print m
+print v
+print s
+# It works, because:
+# m is (p, n, n)
+# v is (p, n, 1)
+# Thus, summing over the paired axes 0 and 0 (of m and v independently),
+# and 2 and 1 to remain with a (n, 1) vector.
+
+# 71. Consider a 16x16 array, how to get the block-sum (block
+# size is 4x4? (***) (important)
+#  ufunc.reduceat(a, indices, axis=0, dtype=None, out=None)
+#     Performs a (local) reduce with specified slices over a single axis.
+z = np.ones((16, 16))
+k = 4
+s = np.add.reduceat(np.add.reduceat(z, np.arange(0, z.shape[0], k), axis=0),
+                    np.arange(0, z.shape[1], k), axis=1)
+print z
+print np.add.reduceat(z, np.arange(0, z.shape[0], k), axis=0)
+print s
+# 72. How to implement the Game of Life using numpy arrays? (***\
+# (not understanding the following codes)
+def iterate(z):
+    # count neighbours
+    n = (z[0:-2, 0:-2] + z[0:-2, 1:-1] + z[0:-2, 2:] +
+         z[1:-1, 0:-2] + z[1:-1, 2:] +
+         z[2:, 0:-2] + z[2:, 1:-1] + z[2:, 2:])
+    # apply rules
+    birth = (n == 3) & (z[1:-1, 1:-1] == 0)
+    survive = ((n == 2) | (n == 3)) & (z[1:-1, 1:-1] == 1)
+    z[...] = 0
+    z[1:-1, 1:-1][birth | survive] = 1
+    return z
+z = np.random.randint(0, 2, (50, 50))
+print z
+for i in np.arange(100):
+    z = iterate(z)
+print z
+
+# 73. How to get the n largest value of an array (***)
+# http://docs.scipy.org/doc/numpy/reference/generated/numpy.argpartition.html
+#  numpy.argpartition(a, kth, axis=-1, kind='introselect', order=None)
+#     Perform an indirect partition along the given axis using the
+#       algorithm specified by the kind keyword. It returns an array
+#       of indices of the same shape as a that index data along the given axis in partitioned order.
+z = np.arange(10000)
+np.random.shuffle(z)
+n = 5
+# Slow
+print z[np.argsort(z)[-n:]]
+
+# Fast
+print z[np.argpartition(-z, n)[:n]]
+
+# 74. Given an arbitrary number of vectors, build the cartesian
+# product (every combinations of every item)(***)
+# ??? (not understanding)
+def cartesian(arrays):
+    arrays = [np.asarray(a) for a in arrays]
+    shape = (len(x) for x in arrays)
+
+    ix = np.indices(shape, dtype=int)
+    ix = ix.reshape(len(arrays), -1).T
+
+    for n, arr in enumerate(arrays):
+        ix[:, n] = arrays[n][ix[:, n]]
+
+    return ix
+
+print cartesian(([1, 2, 3], [4, 5], [6, 7]))
+
+# 75. How to create a record array from a regular array? (***)
+z = np.array([("Hello", 2.5, 3),
+              ("World", 3.6, 2)])
+r = np.core.records.fromarrays(z.T,
+                               names='col1, col2, col3',
+                               formats='S8, f8, i8')
+print z
+print r
+
+# 76. Consider a large vector z, compoute z to the power of 3
+# using 3 different methods (***)
+x = np.random.rand(10)
+print np.power(x, 3)
+
+print x*x*x
+
+print np.einsum('i,i,i->i', x, x, x)
+
+# 77. Consider two arrays A and B shape (8, 3) and (2, 2). How
+# to find rows of A that contain elements of each row of B regardless
+# of the order the elements in B? (***)
+A = np.random.randint(0, 5, (8, 3))
+B = np.random.randint(0, 5, (2, 2))
+C = (A[..., np.newaxis, np.newaxis] == B)
+# rows = (C.sum(axis=(1, 2, 3)) >= B.shape[1]).nonzeros()[0]
+# print rows
+
+# 78. Considering a 10x3 matrix, extrat rows with unequal
+# values (e.g. [2, 2, 3]) (***)
+# (not fully understanding)
+z = np.random.randint(0, 5, (10, 3))
+e = np.logical_and.reduce(z[:, 1:] == z[:, :-1], axis=1)
+u = z[~e]
+print z
+print e
+print u
+
+# 79. Convert a vector of ints into a matrix binary representation (***)
+# (not fully understanding the combination of reshape() and 2**arange(8))
+I = np.array([0, 1, 2, 3, 15, 16, 32, 64, 128])
+B = ((I.reshape(-1, 1) & (2**np.arange(8))) != 0).astype(int)
+print I
+print(B[:, ::-1])
+print B
+
+# 80. Given a two dimensional array, how to extract unique rows? (***)
+z = np.random.randint(0, 2, (6, 3))
+t = np.ascontiguousarray(z).view(np.dtype((np.void, z.dtype.itemsize * z.shape[1])))
+_, idx = np.unique(t, return_index=True)
+uz = z[idx]
+print z
+print t
+print uz
+
+# 81. Considering 2 vectors A & B, write the einsum equivalent of inner,
+# outer, sum and mul function (***)
+A = np.ones(10)
+B = np.ones(10)*2
+print A
+print np.sum(A)
+print np.einsum('i->', A)     # np.sum(A)
+print A*B
+print np.einsum('i,i->i', A, B)  # A*B
+print np.einsum('i,i', A, B)  # np.inner(A, B)
+print np.einsum('i,j', A, B)  # np.outer(A, B)
+
+# 82. Considering a path described by two vectors (X, Y), how
+# to sample it using equidistant samples (***)?
+# (not understanding the algorithm) ???
+# phi = np.arange(0, 10*np.pi, 0.1)
+phi = np.arange(0, 10*np.pi, 0.5)
+a = 1
+x = a * phi * np.cos(phi)
+y = a * phi * np.sin(phi)
+
+dr = (np.diff(x)**2 + np.diff(y)**2)**.5  # segment lengths
+r = np.zeros_like(x)
+r[1:] = np.cumsum(dr)                 # integrate path
+r_int = np.linspace(0, r.max(), 200)  # regular spaced path
+x_int = np.interp(r_int, r, x)        # integrate path
+y_int = np.interp(r_int, r, y)
+print 'r'
+print r
+print r_int
+print x_int
+print y_int
+
+# 83. Given an integer n and a 2D array X, select from X the rows which
+# can be interpreted as draws from a multinomial distribution with n
+# degrees, i.e., the rows which only contain integers and which sum
+# to n. (***)
+# (not understanding) ???
+x = np.asarray([[1.0, 0.0, 3.0, 8.0],
+                [2.0, 0.0, 1.0, 1.0],
+                [1.5, 2.5, 1.0, 0.0]])
+n = 4
+m = np.logical_and.reduce(np.mod(x, 1) == 0, axis=-1)
+print m
+m &= (x.sum(axis=-1) == n)
+print m
+print x
+print x[m]
