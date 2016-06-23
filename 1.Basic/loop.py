@@ -93,11 +93,12 @@ print u
 print p
 print v
 print 'compute_seq(x, w, y, u, p, v)'
-print compute_elementwise(x, w, y, u, p, v)
+print compute_seq(x, w, y, u, p, v)
 
 # comparison with numpy
 x_res = np.zeros((5, 2), dtype=theano.config.floatX)
 x_res[0] = np.tanh(x.dot(w) + y[0].dot(u) + p[4].dot(v))
 for i in range(1, 5):
     x_res[i] = np.tanh(x_res[i - 1].dot(w) + y[i].dot(u) + p[4 - i].dot(v))
+print 'results from numpy'
 print x_res
