@@ -282,22 +282,77 @@ b_sym = T.vector("b_sym")
 trng = T.shared_randomstreams.RandomStreams(1234)
 d = trng.binomial(size=W[1].shape)
 
-results, updates = theano.scan(lambda v: T.tanh(T.dot(v, W) + b_sym) * d,
-                               sequences=[X],)
+results, updates = theano.scan(
+    lambda v: T.tanh(T.dot(v, W) + b_sym) * d,
+    sequences=X)
 compute_with_bnoise = theano.function(
     inputs=[X, W, b_sym],
     outputs=results,
     updates=updates,
-    allow_input_downcast=True
-)
+    allow_input_downcast=True)
 
 # test
 x = np.eye(10, 2, dtype=theano.config.floatX)
+w = np.ones((2, 2), dtype=theano.config.floatX)
+b = np.ones((2), dtype=theano.config.floatX)
+
+print compute_with_bnoise(x, w, b)
+
 
 # 10. Scan Example: Computing pow(A, k)
+import theano
+import theano.tensor as T
+theano.config.warn.subtensor_merge_bug = False
+
+k = T.iscalar("k")
+A = T.vector("A")
+
+def inner_fct(prior_result, B):
+    return prior_result * B
+
+# Symbolic description of the result
+result, updates = theano.scan(fn=inner_fct,
+                              outputs_info=T.ones_like(A),
+                              non_sequences=A,
+                              n_steps=k)
+# Scan has provided us with A ** 1 trough A ** k. Keep only the least
+# value. Scan notices this and does not waste memory saving them.
+final_result = result[-1]
+
+power = theano.function(inputs=[A, k],
+                        outputs=final_result,
+                        updates=updates)
+
+print power(range(10), 5)
 
 
 # 11. Scan Example: calculating a Polynomial
+import numpy
+import theano
+import theano.tensor as T
+theano.config.warn.subtensor_merge_bug = False
+
+coeficients = theano.tensor.vector("coefficients")
+x = T.scalar("x")
+max_coefficients_supported = 10000
+
+# Genearte the components of the polynomial
+full_range = theano.tensor.arange(max_coefficients_supported)
+components, updates = theano.scan(
+    fn=lambda coeff, power, free_var: coeff * (free_var ** power),
+    outputs_info=None,
+    sequences=[coeficients, full_range],
+    non_sequences=x
+)
+polynomial = components.sum()
+calculate_polynomial = theano.function(
+    inputs=[coeficients, x],
+    outputs=polynomial
+)
+
+test_coeff = numpy.asarray([1, 0, 2], dtype=numpy.float32)
+
+print calculate_polynomial(test_coeff, 3)
 
 
 # 12. Exercise
@@ -306,4 +361,39 @@ x = np.eye(10, 2, dtype=theano.config.floatX)
 
 # Modify and execute teh polynomial example to have the reduction done by
 # scan.
+# from __future__ import print_function
+import numpy
+
+import theano
+import theano.tensor as tt
+from six.moves import xrange
+
+# 3. Reduction performed inside scan
+theano.config.warn.subtensor_merge_bug = False
+coefficients = tt.vector("coefficients")
+max_coefficients_supported = 1000
+
+# Generate the components of the polynomial
+full_range = tt.arange(max_coefficients_supported)
+
+outputs_info = tt.as_tensor_variable(numpy.asarray(0, 'float64'))
+
+components, updates = theano.scan(
+    fn=lambda coeff, power, prior_value, free_var:
+    prior_value + (coeff*(free_var**power)),
+    sequences=[coefficients, full_range],
+    outputs_info=outputs_info,
+    non_sequences=x
+)
+
+polynomial = components[-1]
+calculate_polynomial = theano.function(
+    inputs=[coefficients, x],
+    outputs=polynomial,
+    updates=updates
+)
+
+test_coeff = numpy.asarray([1, 0, 2], dtype=numpy.float32)
+
+print(calculate_polynomial(test_coeff, 3))
 
